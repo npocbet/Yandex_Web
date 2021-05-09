@@ -30,8 +30,8 @@
             <td>{{ raw.route }}</td>
             <td>{{ raw.path_logo }}</td>
             <td>{{ raw.airport }}</td>
-            {% set edit_link = "edit?st_number=" + (raw.id)|string %}
-            {% set delete_link = "index?st_number=" + (raw.id)|string %}
+            {% set edit_link = "edit_route?st_number=" + (raw.id)|string %}
+            {% set delete_link = "routes?st_number=" + (raw.id)|string %}
             <td>
                 <a href="{{edit_link}}"><i class="bi bi-pencil"></i></a>
                 <a href="{{delete_link}}"><i class="bi bi-trash"></i></a>
