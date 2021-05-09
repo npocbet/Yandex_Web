@@ -218,8 +218,9 @@ def edit_route():
     form.airport.data = data.airport
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
-        checking_data = db_sess.query(Routes).filter(Routes.route == form.route.raw_data[0]).all()
-        if checking_data is not None:
+        checking_data = db_sess.query(Routes).filter(Routes.route == form.route.raw_data[0],
+                                                     Routes.id != id_row).all()
+        if len(checking_data) != 0:
             return render_template('add_edit_route.html', title='Изменить', form=form,
                                    message="Рейс с таким названием уже существует")
         edited_row = Routes()
