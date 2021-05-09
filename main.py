@@ -8,6 +8,7 @@ from data.routes import Routes
 from data.sts import Sts
 from forms.add_edit_form import AddEditForm
 from forms.add_edit_route_form import AddEditRouteForm
+from forms.add_edit_st_form import AddEditStForm
 
 
 # функция проверки наложения интервалов событий
@@ -203,7 +204,7 @@ def routes():
     return render_template("routes.html", data=enumerate(data))
 
 
-# функция реализует форму редактирования выбранного события
+# функция реализует форму редактирования выбранного рейса
 @app.route('/edit_route', methods=['GET', 'POST'])
 def edit_route():
     db_sess = db_session.create_session()
@@ -241,7 +242,7 @@ def edit_route():
     return render_template('add_edit_route.html', title='Изменить', form=form)
 
 
-# функция реализует форму добавления нового события
+# функция реализует форму добавления нового рейса
 @app.route("/add_route", methods=['GET', 'POST'])
 def add_route():
     db_sess = db_session.create_session()
@@ -265,6 +266,92 @@ def add_route():
         return redirect('/routes')
 
     return render_template('add_edit_route.html', title='Добавить', form=form)
+
+
+# функция возвращает список всех табло
+@app.route('/sts', methods=['GET', 'POST'])
+def sts():
+    db_sess = db_session.create_session()
+    data = db_sess.query(Sts).all()
+
+    # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
+    if 'st_id' in request.args.keys():
+        id_row = request.args['st_id']
+        db_sess.query(Sts).filter(Sts.id == id_row).delete()
+        db_sess.commit()
+        data = db_sess.query(Sts).all()
+
+    return render_template("sts.html", data=enumerate(data))
+
+
+# функция реализует форму редактирования выбранного табло
+@app.route('/edit_st', methods=['GET', 'POST'])
+def edit_st():
+    db_sess = db_session.create_session()
+    form = AddEditStForm()
+    id_row = 1
+    # проверяем наличие параметра, содержащего id редактируемого события
+    if 'st_id' in request.args.keys():
+        id_row = request.args['st_id']
+    data = db_sess.query(Sts).filter(Sts.id == int(id_row)).first()
+
+    # список типов табло
+    sts_type = [(0, '0 посадка'), ('1', '1 регистрация')]
+    id_row = 1
+    # проверяем наличие параметра, содержащего id редактируемого события
+    if 'st_id' in request.args.keys():
+        id_row = request.args['st_id']
+    form.type.choices = sts_type
+    form.remote_ip.data = data.remote_ip
+    form.type.data = str(data.type)
+    # обрабатываем нажатие на кнопку
+    if form.validate_on_submit():
+        # Проверяем ip табло на совпадение и имеющимися
+        checking_data = db_sess.query(Sts).filter(Sts.remote_ip == form.remote_ip.raw_data[0],
+                                                     Sts.id != id_row).all()
+        if len(checking_data) != 0:
+            return render_template('add_edit_st.html', title='Изменить', form=form,
+                                   message="Табло с таким ip-адресом уже существует")
+        edited_row = Sts()
+        edited_row.id = id_row
+        edited_row.remote_ip = form.remote_ip.raw_data[0]
+        edited_row.type = form.type.raw_data[0]
+
+        # удаляем старую запись и делаем новую
+        db_sess.query(Sts).filter(Sts.id == id_row).delete()
+        db_sess.commit()
+        db_sess.add(edited_row)
+        db_sess.commit()
+        return redirect('/sts')
+
+    return render_template('add_edit_st.html', title='Изменить', form=form)
+
+
+# функция реализует форму добавления нового табло
+@app.route("/add_st", methods=['GET', 'POST'])
+def add_st():
+    db_sess = db_session.create_session()
+    form = AddEditStForm()
+    form.submit.label.text = 'Добавить'
+    sts_type = [(0, '0 посадка'), ('1', '1 регистрация')]
+    form.type.choices = sts_type
+    # обрабатываем нажатие на кнопку
+    if form.validate_on_submit():
+        # Проверяем ip табло на совпадение и имеющимися
+        checking_data = db_sess.query(Sts).filter(Sts.remote_ip == form.remote_ip.raw_data[0]).all()
+        if len(checking_data) != 0:
+            return render_template('add_edit_st.html', title='Изменить', form=form,
+                                   message="Табло с таким ip-адресом уже существует")
+        added_row = Sts()
+        added_row.remote_ip = form.remote_ip.raw_data[0]
+        added_row.type = form.type.raw_data[0]
+
+        # добавляем запись в бд
+        db_sess.add(added_row)
+        db_sess.commit()
+        return redirect('/sts')
+
+    return render_template('add_edit_st.html', title='Добавить', form=form)
 
 
 # функция возвращает страницу текущего события табло, запросившего ее
