@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="routes.html add edit delete after debug">
-      <change afterPath="$PROJECT_DIR$/forms/add_edit_st_form.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/add_edit_st.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/sts.html" afterDir="false" />
+    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="sts.html add edit delete after debug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/db/database.db" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/sts.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sts.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -222,7 +220,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620554025549</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="sts.html add edit delete after debug">
+      <created>1620560280502</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1620560280502</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -247,6 +252,18 @@
     <MESSAGE value="route edit checking another route with a same name" />
     <MESSAGE value="route edit checking another route with a same name final" />
     <MESSAGE value="routes.html add edit delete after debug" />
-    <option name="LAST_COMMIT_MESSAGE" value="routes.html add edit delete after debug" />
+    <MESSAGE value="sts.html add edit delete after debug" />
+    <option name="LAST_COMMIT_MESSAGE" value="sts.html add edit delete after debug" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>38</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

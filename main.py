@@ -29,6 +29,18 @@ def string_to_datetime(string):
     return datetime.datetime(*string)
 
 
+# функция проверки корректности ip-адреса
+def correct_ip(ip_string):
+    ip_list = ip_string.split('.')
+    if len(ip_list) != 4:
+        return False
+    if not all(list(map(lambda x: x.isdigit(), ip_list))):
+        return False
+    if not all(list(map(lambda x: 0 < int(x) < 255, ip_list))):
+        return False
+    return True
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
@@ -312,6 +324,10 @@ def edit_st():
         if len(checking_data) != 0:
             return render_template('add_edit_st.html', title='Изменить', form=form,
                                    message="Табло с таким ip-адресом уже существует")
+        # Проверка правильности формата ip-адреса
+        if not correct_ip(form.remote_ip.raw_data[0]):
+            return render_template('add_edit_st.html', title='Изменить', form=form,
+                                   message="ip-адрес указан некорректно")
         edited_row = Sts()
         edited_row.id = id_row
         edited_row.remote_ip = form.remote_ip.raw_data[0]
@@ -342,6 +358,10 @@ def add_st():
         if len(checking_data) != 0:
             return render_template('add_edit_st.html', title='Изменить', form=form,
                                    message="Табло с таким ip-адресом уже существует")
+        # Проверка правильности формата ip-адреса
+        if not correct_ip(form.remote_ip.raw_data[0]):
+            return render_template('add_edit_st.html', title='Изменить', form=form,
+                                   message="ip-адрес указан некорректно")
         added_row = Sts()
         added_row.remote_ip = form.remote_ip.raw_data[0]
         added_row.type = form.type.raw_data[0]
