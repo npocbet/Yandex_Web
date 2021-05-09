@@ -1,17 +1,20 @@
-{% extends "base.html" %}
-
-{% block content %}
- {% if state == 5 %}
-        <style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    {% if state == 5 %}
+    <style>
 				.logo {
 					width:1260px;
 					height:700px;
 					border:1px solid white;
 					background: #ffffff;
 				}
-		</style>
-  {% elif state == 1 or state == 3 %}
-        <style>
+
+    </style>
+    {% elif state == 1 or state == 3 %}
+    <style>
 					.logo {
 						width:1260px;
 						height:120px;
@@ -79,9 +82,10 @@
 						font-size: 15pt;
 						font-family: Verdana, Arial, Helvetica, sans-serif;
 					}
-		</style>
-   {% elif state == 2 %}
-        <style>
+
+    </style>
+    {% elif state == 2 %}
+    <style>
 					.logo {
 						width:1260px;
 						height:120px;
@@ -137,9 +141,10 @@
 						font-size: 15pt;
 						font-family: Verdana, Arial, Helvetica, sans-serif;
 					}
-		</style>
+
+    </style>
     {% elif state == 4 %}
-        <style>
+    <style>
 					.logo {
 						width:1260px;
 						height:120px;
@@ -175,64 +180,80 @@
 						font-size: 15pt;
 						font-family: Verdana, Arial, Helvetica, sans-serif;
 					}
-		</style>
- {% endif %}
+
+    </style>
+    {% endif %}
 </head>
 <body>
- {% if state == 5 %}
-    <div class="logo"><img src="../static/img/nal_logo2.jpg" align="left"></div>
- {% elif state == 1 %}
-    <div class="logo">
-        <img src="../static/img/nal_logo.png" align="left">
-        <img src={{"../static/img/" + route_data.path_logo}} align="right">
-    </div>
-    <div class="st">
-        <center>{{st_temp.id}}</center>
-    </div>
-    <div class="route">
-        <center>{{route_data.route}}</center>
-    </div>
-    <div class="dest">
-        <center>{{route_data.airport}}</center>
-    </div>
-    <div class="time"><br>
-        <center>Окончание регистрации - {{data.end_time.strftime("%H:%M")}}</center>
-    </div>
-    <div class="msg">
-        <center>Время вылета {{data.up_time.strftime("%H:%M")}}</center>
-    </div>
-    <div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
- {% elif state == 2 %}
-    <div class="logo">
-        <img src="../static/img/nal_logo.png" align="left">
-        <img src={{"../static/img/" + route_data.path_logo}} align="right">
-    </div>
-    <div class="route">
-        <center>{{route_data.route}}</center>
-    </div>
-    <div class="dest">
-        <center>{{route_data.airport}}</center>
-    </div>
-    <div class="time" style="font-size: 72pt;"><br><center>ПОСАДКА</center></div>
-    <div class="msg">
-        <center>Время вылета {{data.up_time.strftime("%H:%M")}}</center>
-    </div>
-    <div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
- {% elif state == 3 %}
-    <div class="logo">
-        <img src="../static/img/nal_logo.png" align="left">
-        <img src={{"../static/img/" + route_data.path_logo}} align="right">
-    </div>
-    <div class="st"><center>{{st_temp.id}}</center></div>
-    <div class="route"><center>{{route_data.route}}</center></div>
-    <div class="dest"><center>{{route_data.airport}}</center></div>
-    <div class="time"><br><center>Окончание регистрации - {{data.end_time.strftime("%H:%M")}}</center></div>
-    <div class="msg"><center>Начало регистрации {{data.begin_time.strftime("%H:%M")}}</center></div>
-	<div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
- {% elif state == 4 %}
-    <div class="logo"> <img src="../static/img/nal_logo.png" align="left"></div>
-    <div class="st"><center>РЕГИСТРАЦИЯ ОКОНЧЕНА</center></div>
- {% elif state == 0 %}
-    <div>Табло не зарегистрировано</div>
- {% endif %}
-{% endblock %}
+{% if state == 5 %}
+<div class="logo"><img src="../static/img/nal_logo2.jpg" align="left"></div>
+{% elif state == 1 %}
+<div class="logo">
+    <img src="../static/img/nal_logo.png" align="left">
+    <img src={{"../static/img/" + route_data.path_logo}} align="right">
+</div>
+<div class="st">
+    <center>{{st_temp.id}}</center>
+</div>
+<div class="route">
+    <center>{{route_data.route}}</center>
+</div>
+<div class="dest">
+    <center>{{route_data.airport}}</center>
+</div>
+<div class="time"><br>
+    <center>Окончание регистрации - {{data.end_time.strftime("%H:%M")}}</center>
+</div>
+<div class="msg">
+    <center>Время вылета {{data.up_time.strftime("%H:%M")}}</center>
+</div>
+<div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
+{% elif state == 2 %}
+<div class="logo">
+    <img src="../static/img/nal_logo.png" align="left">
+    <img src={{"../static/img/" + route_data.path_logo}} align="right">
+</div>
+<div class="route">
+    <center>{{route_data.route}}</center>
+</div>
+<div class="dest">
+    <center>{{route_data.airport}}</center>
+</div>
+<div class="time" style="font-size: 72pt;"><br>
+    <center>ПОСАДКА</center>
+</div>
+<div class="msg">
+    <center>Время вылета {{data.up_time.strftime("%H:%M")}}</center>
+</div>
+<div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
+{% elif state == 3 %}
+<div class="logo">
+    <img src="../static/img/nal_logo.png" align="left">
+    <img src={{"../static/img/" + route_data.path_logo}} align="right">
+</div>
+<div class="st">
+    <center>{{st_temp.id}}</center>
+</div>
+<div class="route">
+    <center>{{route_data.route}}</center>
+</div>
+<div class="dest">
+    <center>{{route_data.airport}}</center>
+</div>
+<div class="time"><br>
+    <center>Окончание регистрации - {{data.end_time.strftime("%H:%M")}}</center>
+</div>
+<div class="msg">
+    <center>Начало регистрации {{data.begin_time.strftime("%H:%M")}}</center>
+</div>
+<div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
+{% elif state == 4 %}
+<div class="logo"><img src="../static/img/nal_logo.png" align="left"></div>
+<div class="st">
+    <center>РЕГИСТРАЦИЯ ОКОНЧЕНА</center>
+</div>
+{% elif state == 0 %}
+<div>Табло не зарегистрировано</div>
+{% endif %}
+</body>
+</html>

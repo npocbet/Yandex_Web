@@ -228,7 +228,13 @@ def edit_route():
         id_row = request.args['route_id']
     data = db_sess.query(Routes).filter(Routes.id == int(id_row)).first()
 
+    logos = os.listdir('static/img')
+    logos.remove('nal_logo.png')
+    logos.remove('nal_logo2.jpg')
+    logos = [(i, i.split('.')[0]) for i in logos]
+
     form.route.data = data.route
+    form.path_logo.choices = logos
     form.path_logo.data = data.path_logo
     form.airport.data = data.airport
     # обрабатываем нажатие на кнопку
@@ -264,6 +270,12 @@ def edit_route():
 def add_route():
     db_sess = db_session.create_session()
     form = AddEditRouteForm()
+    logos = os.listdir('static/img')
+    logos.remove('nal_logo.png')
+    logos.remove('nal_logo2.jpg')
+    logos = [(i, i.split('.')[0]) for i in logos]
+
+    form.path_logo.choices = logos
     form.submit.label.text = 'Добавить'
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
@@ -381,6 +393,12 @@ def add_st():
         return redirect('/sts')
 
     return render_template('add_edit_st.html', title='Добавить', form=form)
+
+
+# функция выбора файла логотипа
+@app.route("/logo_add", methods=['GET', 'POST'])
+def logo_choose():
+    return render_template('logo_add.html', title='Выбор логотипа')
 
 
 # функция возвращает страницу текущего события табло, запросившего ее
