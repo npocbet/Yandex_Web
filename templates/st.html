@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block content %}
+ {% if state == 5 %}
+        <style>
+				.logo {
+					width:1260px;
+					height:700px;
+					border:1px solid white;
+					background: #ffffff;
+				}
+		</style>
+  {% elif state == 1 or state == 3 %}
+        <style>
+					.logo {
+						width:1260px;
+						height:120px;
+						border:1px solid white;
+						background: #ffffff;
+					}
+					.st {
+						width:280px;
+						height:500px;
+						float:left;
+						color:#ffffff;
+						font-size: 230pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #000052;
+					}
+					.route {
+						width:980px;
+						height:235px;
+						margin-left:280px;
+						color:#000052;
+						font-size: 65pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #7dc2de;
+					}
+					.dest {
+						width:980px;
+						height:115px;
+						margin-left:280px;
+						color:#ffffff;
+						font-size: 60pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #000052;
+					}
+					.time {
+						width:980px;
+						height:150px;
+						margin-left:280px;
+						color:#000052;
+						font-size: 36pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #7dc2de;
+						font-weight:bold;
+						line-height: 1em;
+					}
+					.msg {
+						width:1150px;
+						height:50px;
+						border:1px solid white;
+						background: #ffffff;
+						float:left;
+						color:#000052;
+						font-size: 33pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						font-weight:bold;
+					}
+					.clock {
+						width:89px;
+						height:50px;
+						border:1px solid white;
+						border-left:1px solid white;
+						background: #ffffff;
+						float:left;
+						color:#000052;
+						font-weight:bold;
+						font-size: 15pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+					}
+		</style>
+   {% elif state == 2 %}
+        <style>
+					.logo {
+						width:1260px;
+						height:120px;
+						border:1px solid white;
+						background: #ffffff;
+					}
+					.route {
+						width:1260px;
+						height:235px;
+						color:#000052;
+						font-size: 65pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #7dc2de;
+					}
+					.dest {
+						width:1260px;
+						height:115px;
+						color:#ffffff;
+						font-size: 60pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #000052;
+					}
+					.time {
+						width:1260px;
+						height:150px;
+						color:#000052;
+						font-size: 36pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #7dc2de;
+						font-weight:bold;
+						line-height: 0.5em;
+					}
+					.msg {
+						width:1150px;
+						height:50px;
+						border:1px solid white;
+						background: #ffffff;
+						float:left;
+						color:#000052;
+						font-size: 33pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						font-weight:bold;
+					}
+					.clock {
+						width:89px;
+						height:50px;
+						border:1px solid white;
+						border-left:1px solid white;
+						background: #ffffff;
+						float:left;
+						color:#000052;
+						font-weight:bold;
+						font-size: 15pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+					}
+		</style>
+    {% elif state == 4 %}
+        <style>
+					.logo {
+						width:1260px;
+						height:120px;
+						border:1px solid white;
+						background: #ffffff;
+					}
+					.st {
+						width:1260px;
+						height:500px;
+						float:left;
+						color:#000052;
+						font-size: 110pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+						background: #7dc2de;
+						padding-top: 75px;
+						font-weight: 700;
+					}
+					.msg {
+						width:1150px;
+						height:50px;
+						border:1px solid white;
+						background: #ffffff;
+						float:left;
+					}
+					.clock {
+						width:89px;
+						height:50px;
+						border:1px solid white;
+						border-left:1px solid white;
+						background: #ffffff;
+						color:#000052;
+						font-weight:bold;
+						font-size: 15pt;
+						font-family: Verdana, Arial, Helvetica, sans-serif;
+					}
+		</style>
+ {% endif %}
+</head>
+<body>
+ {% if state == 5 %}
+    <div class="logo"><img src="../static/img/nal_logo2.jpg" align="left"></div>
+ {% elif state == 1 %}
+    <div class="logo">
+        <img src="../static/img/nal_logo.png" align="left">
+        <img src={{"../static/img/" + route_data.path_logo}} align="right">
+    </div>
+    <div class="st">
+        <center>{{st_temp.id}}</center>
+    </div>
+    <div class="route">
+        <center>{{route_data.route}}</center>
+    </div>
+    <div class="dest">
+        <center>{{route_data.airport}}</center>
+    </div>
+    <div class="time"><br>
+        <center>Окончание регистрации - {{data.end_time.strftime("%H:%M")}}</center>
+    </div>
+    <div class="msg">
+        <center>Время вылета {{data.up_time.strftime("%H:%M")}}</center>
+    </div>
+    <div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
+ {% elif state == 2 %}
+    <div class="logo">
+        <img src="../static/img/nal_logo.png" align="left">
+        <img src={{"../static/img/" + route_data.path_logo}} align="right">
+    </div>
+    <div class="route">
+        <center>{{route_data.route}}</center>
+    </div>
+    <div class="dest">
+        <center>{{route_data.airport}}</center>
+    </div>
+    <div class="time" style="font-size: 72pt;"><br><center>ПОСАДКА</center></div>
+    <div class="msg">
+        <center>Время вылета {{data.up_time.strftime("%H:%M")}}</center>
+    </div>
+    <div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
+ {% elif state == 3 %}
+    <div class="logo">
+        <img src="../static/img/nal_logo.png" align="left">
+        <img src={{"../static/img/" + route_data.path_logo}} align="right">
+    </div>
+    <div class="st"><center>{{st_temp.id}}</center></div>
+    <div class="route"><center>{{route_data.route}}</center></div>
+    <div class="dest"><center>{{route_data.airport}}</center></div>
+    <div class="time"><br><center>Окончание регистрации - {{data.end_time.strftime("%H:%M")}}</center></div>
+    <div class="msg"><center>Начало регистрации {{data.begin_time.strftime("%H:%M")}}</center></div>
+	<div class="clock">{{time.strftime("%d-%B %H:%M")}}</div>
+ {% elif state == 4 %}
+    <div class="logo"> <img src="../static/img/nal_logo.png" align="left"></div>
+    <div class="st"><center>РЕГИСТРАЦИЯ ОКОНЧЕНА</center></div>
+ {% elif state == 0 %}
+    <div>Табло не зарегистрировано</div>
+ {% endif %}
+{% endblock %}
