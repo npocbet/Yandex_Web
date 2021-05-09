@@ -48,6 +48,20 @@ def events():
     return render_template("events.html", data=enumerate(data))
 
 
+@app.route('/routes', methods=['GET', 'POST'])
+def routes():
+    db_sess = db_session.create_session()
+    data = db_sess.query(Routes).all()
+
+    # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
+    if 'route_id' in request.args.keys():
+        id_row = request.args['route_id']
+        db_sess.query(MainTable).filter(Routes.id == id_row).delete()
+        db_sess.commit()
+        data = db_sess.query(MainTable).all()
+
+    return render_template("routes.html", data=enumerate(data))
+
 # функция возвращает страницу текущего события табло, запросившего ее
 @app.route("/st")
 def st():
@@ -135,17 +149,17 @@ def edit():
                                     minute=int(form.up_time.raw_data[0][3:]))
         # проверки на очередность времени
         if not (begin_time <= end_time):
-            return render_template('add_edit.html', title='Изменить', form=form,
+            return render_template('add_edit_event.html', title='Изменить', form=form,
                                    message="Время окончания     события предшествует времени его начала")
         if not (end_time < up_time):
-            return render_template('add_edit.html', title='Изменить', form=form,
+            return render_template('add_edit_event.html', title='Изменить', form=form,
                                    message="Время вылета предшествует времени окончания события")
         # проверяем, чтобы наше событие не накладывалось на существующие, начало одного и окончание другого
         # могут совпадать
         checking_data = db_sess.query(MainTable).filter(MainTable.n_st_id == int(form.st_number.raw_data[0])).all()
         check_result = check_interval(begin_time, end_time, checking_data)
         if check_result is not None:
-            return render_template('add_edit.html', title='Изменить', form=form,
+            return render_template('add_edit_event.html', title='Изменить', form=form,
                                    message="Для этого табло уже есть пересекающееся событие с интервалом " +
                                            f"c {check_result.begin_time.strftime('%H:%M')} по " +
                                            f"{check_result.end_time.strftime('%H:%M')} конец одного события пожет" +
@@ -168,7 +182,7 @@ def edit():
         db_sess.commit()
         return redirect('/')
 
-    return render_template('add_edit.html', title='Изменить', form=form)
+    return render_template('add_edit_event.html', title='Изменить', form=form)
 
 
 # функция реализует форму добавления нового события
@@ -197,17 +211,17 @@ def add():
                                      minute=int(form.end_time.raw_data[0][3:]))
         # проверки на очередность времени
         if not (form.begin_time.data <= form.end_time.data):
-            return render_template('add_edit.html', title='Добавить', form=form,
+            return render_template('add_edit_event.html', title='Добавить', form=form,
                                    message="Время окончания события предшествует времени его начала")
         if not (form.end_time.data < form.up_time.data):
-            return render_template('add_edit.html', title='Добавить', form=form,
+            return render_template('add_edit_event.html', title='Добавить', form=form,
                                    message="Время вылета предшествует времени окончания события")
         # проверяем, чтобы наше событие не накладывалось на существующие, начало одного и окончание другого
         # могут совпадать
         checking_data = db_sess.query(MainTable).filter(MainTable.n_st_id == int(form.st_number.raw_data[0])).all()
         check_result = check_interval(begin_time, end_time, checking_data)
         if check_result is not None:
-            return render_template('add_edit.html', title='Добавить', form=form,
+            return render_template('add_edit_event.html', title='Добавить', form=form,
                                    message="Для этого табло уже есть пересекающееся событие с интервалом " +
                                            f"c {check_result.begin_time.strftime('%H:%M')} по " +
                                            f"{check_result.end_time.strftime('%H:%M')} конец одного события пожет" +
@@ -235,7 +249,7 @@ def add():
         db_sess.commit()
         return redirect('/')
 
-    return render_template('add_edit.html', title='Добавить', form=form)
+    return render_template('add_edit_event.html', title='Добавить', form=form)
 
 
 # api для получения информации по текущему рейсу
