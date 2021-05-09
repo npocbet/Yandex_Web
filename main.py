@@ -48,72 +48,6 @@ def events():
     return render_template("events.html", data=enumerate(data))
 
 
-@app.route('/routes', methods=['GET', 'POST'])
-def routes():
-    db_sess = db_session.create_session()
-    data = db_sess.query(Routes).all()
-
-    # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
-    if 'route_id' in request.args.keys():
-        id_row = request.args['route_id']
-        db_sess.query(MainTable).filter(Routes.id == id_row).delete()
-        db_sess.commit()
-        data = db_sess.query(MainTable).all()
-
-    return render_template("routes.html", data=enumerate(data))
-
-# функция возвращает страницу текущего события табло, запросившего ее
-@app.route("/st")
-def st():
-    db_sess = db_session.create_session()
-    # узнаем ip-адрес клиента
-    guest_ip = request.remote_addr
-    state = 0
-    data = []
-    route_data = []
-    # получаем данные о нашей стойке
-    st_temp = db_sess.query(Sts).filter(Sts.remote_ip == guest_ip).first()
-    # получаем данные для нашей стойки, если табло зарегистрировано
-    if st_temp is not None:
-        data = db_sess.query(MainTable).filter(MainTable.n_st_id == st_temp.id).all()
-        state = 5
-        if data is not None:
-            for i in data:
-                begin_time = i.begin_time
-                end_time = i.end_time
-                n_route_id = i.n_route_id
-                # получаем данные о рейсе
-                route_data = db_sess.query(Routes).filter(Routes.id == n_route_id).first()
-                # определяем формат вывода на табло
-                # вариант 1 - есть информация для вывода прямо сейчас, регистрация
-                if begin_time <= datetime.datetime.now() <= end_time and st_temp.type == 1:
-                    state = 1
-                    data = i
-                    break
-                # вариант 2 - есть информация для вывода прямо сейчас, посадка
-                elif begin_time <= datetime.datetime.now() <= end_time and st_temp.type == 0:
-                    state = 2
-                    data = i
-                    break
-                # вариант 3 - ожидается информация через 15 минут, только для табло регистрации
-                elif begin_time <= datetime.datetime.now() + datetime.timedelta(minutes=15) <= end_time and \
-                        st_temp.type == 1:
-                    state = 3
-                    data = i
-                # вариант 4 - информация была 40 минут, только для табло регистрации
-                elif datetime.datetime.now() - datetime.timedelta(minutes=40) <= end_time and \
-                        st_temp.type == 1 and state != 3:
-                    state = 4
-                    data = i
-
-    # получили всю инфу
-    if state:
-        return render_template("st.html", st_temp=st_temp, state=state, data=data,
-                               route_data=route_data, time=datetime.datetime.now())
-    else:
-        return render_template("st.html", state=state)
-
-
 # функция реализует форму редактирования выбранного события
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
@@ -250,6 +184,74 @@ def add():
         return redirect('/')
 
     return render_template('add_edit_event.html', title='Добавить', form=form)
+
+
+# функция возвращает список всех рейсов
+@app.route('/routes', methods=['GET', 'POST'])
+def routes():
+    db_sess = db_session.create_session()
+    data = db_sess.query(Routes).all()
+
+    # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
+    if 'route_id' in request.args.keys():
+        id_row = request.args['route_id']
+        db_sess.query(MainTable).filter(Routes.id == id_row).delete()
+        db_sess.commit()
+        data = db_sess.query(MainTable).all()
+
+    return render_template("routes.html", data=enumerate(data))
+
+
+# функция возвращает страницу текущего события табло, запросившего ее
+@app.route("/st")
+def st():
+    db_sess = db_session.create_session()
+    # узнаем ip-адрес клиента
+    guest_ip = request.remote_addr
+    state = 0
+    data = []
+    route_data = []
+    # получаем данные о нашей стойке
+    st_temp = db_sess.query(Sts).filter(Sts.remote_ip == guest_ip).first()
+    # получаем данные для нашей стойки, если табло зарегистрировано
+    if st_temp is not None:
+        data = db_sess.query(MainTable).filter(MainTable.n_st_id == st_temp.id).all()
+        state = 5
+        if data is not None:
+            for i in data:
+                begin_time = i.begin_time
+                end_time = i.end_time
+                n_route_id = i.n_route_id
+                # получаем данные о рейсе
+                route_data = db_sess.query(Routes).filter(Routes.id == n_route_id).first()
+                # определяем формат вывода на табло
+                # вариант 1 - есть информация для вывода прямо сейчас, регистрация
+                if begin_time <= datetime.datetime.now() <= end_time and st_temp.type == 1:
+                    state = 1
+                    data = i
+                    break
+                # вариант 2 - есть информация для вывода прямо сейчас, посадка
+                elif begin_time <= datetime.datetime.now() <= end_time and st_temp.type == 0:
+                    state = 2
+                    data = i
+                    break
+                # вариант 3 - ожидается информация через 15 минут, только для табло регистрации
+                elif begin_time <= datetime.datetime.now() + datetime.timedelta(minutes=15) <= end_time and \
+                        st_temp.type == 1:
+                    state = 3
+                    data = i
+                # вариант 4 - информация была 40 минут, только для табло регистрации
+                elif datetime.datetime.now() - datetime.timedelta(minutes=40) <= end_time and \
+                        st_temp.type == 1 and state != 3:
+                    state = 4
+                    data = i
+
+    # получили всю инфу
+    if state:
+        return render_template("st.html", st_temp=st_temp, state=state, data=data,
+                               route_data=route_data, time=datetime.datetime.now())
+    else:
+        return render_template("st.html", state=state)
 
 
 # api для получения информации по текущему рейсу

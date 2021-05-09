@@ -27,7 +27,7 @@
         {% for index,raw in data %}
         <tr>
             <th scope="row">{{ index + 1 }}</th>
-            <td>{{ raw.n_route }}</td>
+            <td>{{ raw.route }}</td>
             <td>{{ raw.path_logo }}</td>
             <td>{{ raw.airport }}</td>
             {% set edit_link = "edit?st_number=" + (raw.id)|string %}
