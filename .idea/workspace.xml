@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="route edit checking another route with a same name">
+    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="route edit checking another route with a same name final">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/db/database.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forms/add_edit_route_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/forms/add_edit_route_form.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/routes.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/routes.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -204,7 +207,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620552460985</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="route edit checking another route with a same name final">
+      <created>1620552879459</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1620552879459</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -227,17 +237,7 @@
     <MESSAGE value="little managing of functions" />
     <MESSAGE value="route edit fixed" />
     <MESSAGE value="route edit checking another route with a same name" />
-    <option name="LAST_COMMIT_MESSAGE" value="route edit checking another route with a same name" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/main.py</url>
-          <line>222</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="route edit checking another route with a same name final" />
+    <option name="LAST_COMMIT_MESSAGE" value="route edit checking another route with a same name final" />
   </component>
 </project>

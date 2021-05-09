@@ -9,6 +9,7 @@ from data.sts import Sts
 from forms.add_edit_form import AddEditForm
 from forms.add_edit_route_form import AddEditRouteForm
 
+
 # функция проверки наложения интервалов событий
 def check_interval(begin, end, checking_data):
     for i in checking_data:
@@ -54,14 +55,14 @@ def edit():
     db_sess = db_session.create_session()
     form = AddEditForm()
     # список всех маршрутов
-    routes = [(i.route, i.route) for i in db_sess.query(Routes).all()]
+    routes_list = [(i.route, i.route) for i in db_sess.query(Routes).all()]
     # список всех табло
     sts = [(i.id, i.id) for i in db_sess.query(Sts).all()]
     id_row = 1
     # проверяем наличие параметра, содержащего id редактируемого события
     if 'st_number' in request.args.keys():
         id_row = request.args['st_number']
-    form.route_number.choices = routes
+    form.route_number.choices = routes_list
     form.st_number.choices = sts
     data = db_sess.query(MainTable).filter(MainTable.id == int(id_row)).first()
     form.begin_time.data = data.begin_time
@@ -124,11 +125,11 @@ def edit():
 def add():
     db_sess = db_session.create_session()
     # список всех маршрутов
-    routes = [(i.route, i.route) for i in db_sess.query(Routes).all()]
+    routes_list = [(i.route, i.route) for i in db_sess.query(Routes).all()]
     # список всех табло
     sts = [(i.id, i.id) for i in db_sess.query(Sts).all()]
     form = AddEditForm()
-    form.route_number.choices = routes
+    form.route_number.choices = routes_list
     form.st_number.choices = sts
     form.begin_time.data = datetime.datetime.now()
     form.end_time.data = datetime.datetime.now() + datetime.timedelta(hours=2, minutes=20)
@@ -195,9 +196,9 @@ def routes():
     # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
     if 'route_id' in request.args.keys():
         id_row = request.args['route_id']
-        db_sess.query(MainTable).filter(Routes.id == id_row).delete()
+        db_sess.query(Routes).filter(Routes.id == id_row).delete()
         db_sess.commit()
-        data = db_sess.query(MainTable).all()
+        data = db_sess.query(Routes).all()
 
     return render_template("routes.html", data=enumerate(data))
 
@@ -209,8 +210,8 @@ def edit_route():
     form = AddEditRouteForm()
     id_row = 1
     # проверяем наличие параметра, содержащего id редактируемого события
-    if 'st_number' in request.args.keys():
-        id_row = request.args['st_number']
+    if 'route_id' in request.args.keys():
+        id_row = request.args['route_id']
     data = db_sess.query(Routes).filter(Routes.id == int(id_row)).first()
 
     form.route.data = data.route
@@ -218,6 +219,7 @@ def edit_route():
     form.airport.data = data.airport
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
+        # Проверяем название рейса на совпадение и имеющимися
         checking_data = db_sess.query(Routes).filter(Routes.route == form.route.raw_data[0],
                                                      Routes.id != id_row).all()
         if len(checking_data) != 0:
@@ -240,70 +242,29 @@ def edit_route():
 
 
 # функция реализует форму добавления нового события
-@app.route("/add", methods=['GET', 'POST'])
+@app.route("/add_route", methods=['GET', 'POST'])
 def add_route():
     db_sess = db_session.create_session()
-    # список всех маршрутов
-    routes = [(i.route, i.route) for i in db_sess.query(Routes).all()]
-    # список всех табло
-    sts = [(i.id, i.id) for i in db_sess.query(Sts).all()]
-    form = AddEditForm()
-    form.route_number.choices = routes
-    form.st_number.choices = sts
-    form.begin_time.data = datetime.datetime.now()
-    form.end_time.data = datetime.datetime.now() + datetime.timedelta(hours=2, minutes=20)
-    form.up_time.data = datetime.datetime.now() + datetime.timedelta(hours=3)
+    form = AddEditRouteForm()
     form.submit.label.text = 'Добавить'
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
-        now = datetime.datetime.now()
-        begin_time = datetime.datetime(year=now.year, month=now.month, day=now.day,
-                                       hour=int(form.begin_time.raw_data[0][:2]),
-                                       minute=int(form.begin_time.raw_data[0][3:]))
-        end_time = datetime.datetime(year=now.year, month=now.month, day=now.day,
-                                     hour=int(form.end_time.raw_data[0][:2]),
-                                     minute=int(form.end_time.raw_data[0][3:]))
-        # проверки на очередность времени
-        if not (form.begin_time.data <= form.end_time.data):
-            return render_template('add_edit_event.html', title='Добавить', form=form,
-                                   message="Время окончания события предшествует времени его начала")
-        if not (form.end_time.data < form.up_time.data):
-            return render_template('add_edit_event.html', title='Добавить', form=form,
-                                   message="Время вылета предшествует времени окончания события")
-        # проверяем, чтобы наше событие не накладывалось на существующие, начало одного и окончание другого
-        # могут совпадать
-        checking_data = db_sess.query(MainTable).filter(MainTable.n_st_id == int(form.st_number.raw_data[0])).all()
-        check_result = check_interval(begin_time, end_time, checking_data)
-        if check_result is not None:
-            return render_template('add_edit_event.html', title='Добавить', form=form,
-                                   message="Для этого табло уже есть пересекающееся событие с интервалом " +
-                                           f"c {check_result.begin_time.strftime('%H:%M')} по " +
-                                           f"{check_result.end_time.strftime('%H:%M')} конец одного события пожет" +
-                                           "совпадать с началом другого")
-        route_data = db_sess.query(Routes).filter(Routes.route == form.route_number.raw_data[0]).first()
-        now = datetime.datetime.now()
-        begin_time = datetime.datetime(year=now.year, month=now.month, day=now.day,
-                                       hour=int(form.begin_time.raw_data[0][:2]),
-                                       minute=int(form.begin_time.raw_data[0][3:]))
-        end_time = datetime.datetime(year=now.year, month=now.month, day=now.day,
-                                     hour=int(form.end_time.raw_data[0][:2]),
-                                     minute=int(form.end_time.raw_data[0][3:]))
-        up_time = datetime.datetime(year=now.year, month=now.month, day=now.day,
-                                    hour=int(form.up_time.raw_data[0][:2]),
-                                    minute=int(form.up_time.raw_data[0][3:]))
-        added_row = MainTable()
-        added_row.n_route_id = route_data.id
-        added_row.begin_time = begin_time
-        added_row.end_time = end_time
-        added_row.up_time = up_time
-        added_row.n_st_id = form.st_number.raw_data[0]
+        # Проверяем название рейса на совпадение и имеющимися
+        checking_data = db_sess.query(Routes).filter(Routes.route == form.route.raw_data[0]).all()
+        if len(checking_data) != 0:
+            return render_template('add_edit_route.html', title='Изменить', form=form,
+                                   message="Рейс с таким названием уже существует")
+        added_row = Routes()
+        added_row.route = form.route.raw_data[0]
+        added_row.path_logo = form.path_logo.raw_data[0]
+        added_row.airport = form.airport.raw_data[0]
 
         # добавляем запись в бд
         db_sess.add(added_row)
         db_sess.commit()
-        return redirect('/')
+        return redirect('/routes')
 
-    return render_template('add_edit_event.html', title='Добавить', form=form)
+    return render_template('add_edit_route.html', title='Добавить', form=form)
 
 
 # функция возвращает страницу текущего события табло, запросившего ее
