@@ -1,4 +1,5 @@
 import datetime
+import os
 
 from flask import Flask, render_template, redirect, request, jsonify
 from data import db_session, route_info
@@ -70,13 +71,13 @@ def edit():
     # список всех маршрутов
     routes_list = [(i.route, i.route) for i in db_sess.query(Routes).all()]
     # список всех табло
-    sts = [(i.id, i.id) for i in db_sess.query(Sts).all()]
+    sts_list = [(i.id, i.id) for i in db_sess.query(Sts).all()]
     id_row = 1
     # проверяем наличие параметра, содержащего id редактируемого события
     if 'st_number' in request.args.keys():
         id_row = request.args['st_number']
     form.route_number.choices = routes_list
-    form.st_number.choices = sts
+    form.st_number.choices = sts_list
     data = db_sess.query(MainTable).filter(MainTable.id == int(id_row)).first()
     form.begin_time.data = data.begin_time
     form.end_time.data = data.end_time
@@ -140,10 +141,10 @@ def add():
     # список всех маршрутов
     routes_list = [(i.route, i.route) for i in db_sess.query(Routes).all()]
     # список всех табло
-    sts = [(i.id, i.id) for i in db_sess.query(Sts).all()]
+    sts_list = [(i.id, i.id) for i in db_sess.query(Sts).all()]
     form = AddEditForm()
     form.route_number.choices = routes_list
-    form.st_number.choices = sts
+    form.st_number.choices = sts_list
     form.begin_time.data = datetime.datetime.now()
     form.end_time.data = datetime.datetime.now() + datetime.timedelta(hours=2, minutes=20)
     form.up_time.data = datetime.datetime.now() + datetime.timedelta(hours=3)
@@ -238,6 +239,10 @@ def edit_route():
         if len(checking_data) != 0:
             return render_template('add_edit_route.html', title='Изменить', form=form,
                                    message="Рейс с таким названием уже существует")
+        # Проверяем наличие файла с логотипом
+        if not os.access(f'static/img/{form.path_logo.raw_data[0]}', os.F_OK):
+            return render_template('add_edit_route.html', title='Изменить', form=form,
+                                   message="Файл с логотипом не найден")
         edited_row = Routes()
         edited_row.id = id_row
         edited_row.route = form.route.raw_data[0]
@@ -267,6 +272,10 @@ def add_route():
         if len(checking_data) != 0:
             return render_template('add_edit_route.html', title='Изменить', form=form,
                                    message="Рейс с таким названием уже существует")
+        # Проверяем наличие файла с логотипом
+        if not os.access(f'static/img/{form.path_logo.raw_data[0]}', os.F_OK):
+            return render_template('add_edit_route.html', title='Изменить', form=form,
+                                   message="Файл с логотипом не найден")
         added_row = Routes()
         added_row.route = form.route.raw_data[0]
         added_row.path_logo = form.path_logo.raw_data[0]
@@ -320,7 +329,7 @@ def edit_st():
     if form.validate_on_submit():
         # Проверяем ip табло на совпадение и имеющимися
         checking_data = db_sess.query(Sts).filter(Sts.remote_ip == form.remote_ip.raw_data[0],
-                                                     Sts.id != id_row).all()
+                                                  Sts.id != id_row).all()
         if len(checking_data) != 0:
             return render_template('add_edit_st.html', title='Изменить', form=form,
                                    message="Табло с таким ip-адресом уже существует")
