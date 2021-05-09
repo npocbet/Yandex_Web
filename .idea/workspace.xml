@@ -1,21 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="added checking of exist logo file">
-      <change afterPath="$PROJECT_DIR$/templates/logo_add.html" afterDir="false" />
+    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="added navbar, changed all forms, add_edit_route.html path_logo changed to SelectField">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/db_session.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/db_session.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/db/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forms/add_edit_route_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/forms/add_edit_route_form.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/add_edit_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/add_edit_event.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/add_edit_route.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/add_edit_route.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/add_edit_st.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/add_edit_st.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/events.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/events.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/routes.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/routes.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/st.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/st.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/sts.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sts.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/logo_add.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/logo_add.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -252,7 +242,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620561788643</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="added navbar, changed all forms, add_edit_route.html path_logo changed to SelectField">
+      <created>1620571724602</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1620571724602</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -280,6 +277,18 @@
     <MESSAGE value="sts.html add edit delete after debug" />
     <MESSAGE value="sts.html add edit delete after debug final" />
     <MESSAGE value="added checking of exist logo file" />
-    <option name="LAST_COMMIT_MESSAGE" value="added checking of exist logo file" />
+    <MESSAGE value="added navbar, changed all forms, add_edit_route.html path_logo changed to SelectField" />
+    <option name="LAST_COMMIT_MESSAGE" value="added navbar, changed all forms, add_edit_route.html path_logo changed to SelectField" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>402</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

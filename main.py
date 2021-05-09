@@ -105,7 +105,8 @@ def edit():
                                    message="Время вылета предшествует времени окончания события")
         # проверяем, чтобы наше событие не накладывалось на существующие, начало одного и окончание другого
         # могут совпадать
-        checking_data = db_sess.query(MainTable).filter(MainTable.n_st_id == int(form.st_number.raw_data[0])).all()
+        checking_data = db_sess.query(MainTable).filter(MainTable.n_st_id == int(form.st_number.raw_data[0]),
+                                                        MainTable.id != id_row).all()
         check_result = check_interval(begin_time, end_time, checking_data)
         if check_result is not None:
             return render_template('add_edit_event.html', title='Изменить', form=form,
@@ -398,6 +399,10 @@ def add_st():
 # функция выбора файла логотипа
 @app.route("/logo_add", methods=['GET', 'POST'])
 def logo_choose():
+    if request.method == 'POST':
+        f = request.files['file']
+        f.save('static/img/' + f.filename)
+        return render_template('logo_add.html', title='Выбор логотипа', message='file uploaded successfully')
     return render_template('logo_add.html', title='Выбор логотипа')
 
 
@@ -440,7 +445,7 @@ def st():
                     state = 3
                     data = i
                 # вариант 4 - информация была 40 минут, только для табло регистрации
-                elif datetime.datetime.now() - datetime.timedelta(minutes=40) <= end_time and \
+                elif begin_time <= datetime.datetime.now() - datetime.timedelta(minutes=40) <= end_time and \
                         st_temp.type == 1 and state != 3:
                     state = 4
                     data = i

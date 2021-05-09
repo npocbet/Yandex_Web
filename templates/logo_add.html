@@ -1,10 +1,13 @@
 {% extends "base.html" %}
 {% block body %}
 <div style="width: 655px; margin: auto; padding-top: 30px;">
-    <form action="" method="post">
+    <div>Корректно отображаются файлы с расширениями .jpg и .png</div>
+    <div>Максимальная ширина - 632, высота - 126 пикселей</div>
+    <form method="POST" enctype="multipart/form-data">
         <input type="file" name="file">
         <button type="submit">Загрузить</button>
     </form>
+    {{ message }}
 </div>
 
 <!-- Optional JavaScript -->
