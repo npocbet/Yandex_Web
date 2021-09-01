@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="added logo file upload, fixed some bugs">
+    <list default="true" id="3f6959ed-bea4-4179-bc5b-b68c0f8817ec" name="Default Changelist" comment="fixed some templates">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/database.db" beforeDir="false" afterPath="$PROJECT_DIR$/db/database.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/add_edit_event.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/add_edit_event.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -29,6 +27,9 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/main.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1rL4JwiNHTRYnQYahu4mc5vMJ1m" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -264,7 +265,14 @@
       <option name="project" value="LOCAL" />
       <updated>1620577209971</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="fixed some templates">
+      <created>1630488997483</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1630488997483</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -295,15 +303,16 @@
     <MESSAGE value="added checking of exist logo file" />
     <MESSAGE value="added navbar, changed all forms, add_edit_route.html path_logo changed to SelectField" />
     <MESSAGE value="added logo file upload, fixed some bugs" />
-    <option name="LAST_COMMIT_MESSAGE" value="added logo file upload, fixed some bugs" />
+    <MESSAGE value="fixed some templates" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed some templates" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/main.py</url>
-          <line>447</line>
-          <option name="timeStamp" value="2" />
+          <line>174</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

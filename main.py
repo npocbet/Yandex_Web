@@ -1,64 +1,48 @@
 import datetime
 import os
 
-from flask import Flask, render_template, redirect, request, jsonify
-from data import db_session, route_info
-from data.main_table import MainTable
-from data.route_info import blueprint
-from data.routes import Routes
-from data.sts import Sts
+from flask import Flask, render_template, redirect, request
 from forms.add_edit_form import AddEditForm
 from forms.add_edit_route_form import AddEditRouteForm
 from forms.add_edit_st_form import AddEditStForm
 
 
-# функция проверки наложения интервалов событий
-def check_interval(begin, end, checking_data):
-    for i in checking_data:
-        if begin < i.end_time <= end:
-            return i
-        elif begin <= i.begin_time < end:
-            return i
-        elif i.begin_time <= begin <= end <= i.end_time:
-            return i
-    return None
-
-
-# функция преобразования строки в datetime
-def string_to_datetime(string):
-    string = [int(i) for i in string.split(':')]
-    return datetime.datetime(*string)
-
-
-# функция проверки корректности ip-адреса
-def correct_ip(ip_string):
-    ip_list = ip_string.split('.')
-    if len(ip_list) != 4:
-        return False
-    if not all(list(map(lambda x: x.isdigit(), ip_list))):
-        return False
-    if not all(list(map(lambda x: 0 < int(x) < 255, ip_list))):
-        return False
-    return True
-
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+app.config['SECRET_KEY'] = 'test_secret_key'
 
 
 # функция возвращает список всех событий
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def events():
-    db_sess = db_session.create_session()
-    data = db_sess.query(MainTable).all()
 
     # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
     if 'st_number' in request.args.keys():
-        id_row = request.args['st_number']
-        db_sess.query(MainTable).filter(MainTable.id == id_row).delete()
-        db_sess.commit()
-        data = db_sess.query(MainTable).all()
+        pass
+    # тестовые значения табло
+    data = [
+        {'n_route': {'route': 'DP-194'},
+         'n_st_id': 1,
+         'n_st': {'type': 1},
+         'begin_time':'2021-09-01 22:23:00.000000',
+         'end_time':'2021-05-09 23:23:00.000000',
+         'up_time':'2021-05-09 23:43:00.000000'
+         },
+        {'n_route': {'route': 'SU-1065'},
+         'n_st_id': 2,
+         'n_st': {'type': 1},
+         'begin_time': '2021-09-01 22:43:00.000000',
+         'end_time': '2021-05-09 23:43:00.000000',
+         'up_time': '2021-05-09 23:53:00.000000'
+         },
+        {'n_route': {'route': 'DP-6902'},
+         'n_st_id': 3,
+         'n_st': {'type': 1},
+         'begin_time': '2021-09-01 22:00:00.000000',
+         'end_time': '2021-05-09 23:20:00.000000',
+         'up_time': '2021-05-09 23:30:00.000000'
+         }
+    ]
 
     return render_template("events.html", data=enumerate(data))
 
@@ -66,19 +50,25 @@ def events():
 # функция реализует форму редактирования выбранного события
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
-    db_sess = db_session.create_session()
     form = AddEditForm()
-    # список всех маршрутов
-    routes_list = [(i.route, i.route) for i in db_sess.query(Routes).all()]
-    # список всех табло
-    sts_list = [(i.id, i.id) for i in db_sess.query(Sts).all()]
+    # список всех маршрутов - тестовые данные
+    routes_list = [('DP-194', 'DP-194'), ('SU-1065', 'SU-1065'), ('DP-6902', 'DP-6902')]
+    # список всех табло - тестовые данные
+    sts_list = [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')]
     id_row = 1
     # проверяем наличие параметра, содержащего id редактируемого события
     if 'st_number' in request.args.keys():
         id_row = request.args['st_number']
     form.route_number.choices = routes_list
     form.st_number.choices = sts_list
-    data = db_sess.query(MainTable).filter(MainTable.id == int(id_row)).first()
+    # тестовые данные
+    data = {'n_route': {'route': 'DP-194'},
+         'n_st_id': 1,
+         'n_st': {'type': 1},
+         'begin_time':'2021-09-01 22:23:00.000000',
+         'end_time':'2021-05-09 23:23:00.000000',
+         'up_time':'2021-05-09 23:43:00.000000'
+         }
     form.begin_time.data = data.begin_time
     form.end_time.data = data.end_time
     form.up_time.data = data.up_time
@@ -103,33 +93,19 @@ def edit():
         if not (end_time < up_time):
             return render_template('add_edit_event.html', title='Изменить', form=form,
                                    message="Время вылета предшествует времени окончания события")
-        # проверяем, чтобы наше событие не накладывалось на существующие, начало одного и окончание другого
-        # могут совпадать
-        checking_data = db_sess.query(MainTable).filter(MainTable.n_st_id == int(form.st_number.raw_data[0]),
-                                                        MainTable.id != id_row).all()
-        check_result = check_interval(begin_time, end_time, checking_data)
-        if check_result is not None:
-            return render_template('add_edit_event.html', title='Изменить', form=form,
-                                   message="Для этого табло уже есть пересекающееся событие с интервалом " +
-                                           f"c {check_result.begin_time.strftime('%H:%M')} по " +
-                                           f"{check_result.end_time.strftime('%H:%M')} конец одного события пожет" +
-                                           "совпадать с началом другого")
+        # здесь будем проверять пересечение с имеющимися событиями
 
-        route_data = db_sess.query(Routes).filter(Routes.route == form.route_number.raw_data[0]).first()
+        # тестовые данные
+        route_data = {'n_route': {'route': 'DP-194'},
+         'n_st_id': 1,
+         'n_st': {'type': 1},
+         'begin_time': '2021-09-01 22:23:00.000000',
+         'end_time': '2021-05-09 23:23:00.000000',
+         'up_time': '2021-05-09 23:43:00.000000'
+         }
 
-        edited_row = MainTable()
-        edited_row.id = id_row
-        edited_row.n_route_id = route_data.id
-        edited_row.begin_time = begin_time
-        edited_row.end_time = end_time
-        edited_row.up_time = up_time
-        edited_row.n_st_id = form.st_number.raw_data[0]
+        # здесь будем менять запись БД, удаляя старую и добавляя новую
 
-        # удаляем старую запись и делаем новую
-        db_sess.query(MainTable).filter(MainTable.id == id_row).delete()
-        db_sess.commit()
-        db_sess.add(edited_row)
-        db_sess.commit()
         return redirect('/')
 
     return render_template('add_edit_event.html', title='Изменить', form=form)
@@ -138,11 +114,10 @@ def edit():
 # функция реализует форму добавления нового события
 @app.route("/add", methods=['GET', 'POST'])
 def add():
-    db_sess = db_session.create_session()
-    # список всех маршрутов
-    routes_list = [(i.route, i.route) for i in db_sess.query(Routes).all()]
-    # список всех табло
-    sts_list = [(i.id, i.id) for i in db_sess.query(Sts).all()]
+    # список всех маршрутов - тестовые данные
+    routes_list = [('DP-194', 'DP-194'), ('SU-1065', 'SU-1065'), ('DP-6902', 'DP-6902')]
+    # список всех табло - тестовые данные
+    sts_list = [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5')]
     form = AddEditForm()
     form.route_number.choices = routes_list
     form.st_number.choices = sts_list
@@ -166,17 +141,16 @@ def add():
         if not (form.end_time.data < form.up_time.data):
             return render_template('add_edit_event.html', title='Добавить', form=form,
                                    message="Время вылета предшествует времени окончания события")
-        # проверяем, чтобы наше событие не накладывалось на существующие, начало одного и окончание другого
-        # могут совпадать
-        checking_data = db_sess.query(MainTable).filter(MainTable.n_st_id == int(form.st_number.raw_data[0])).all()
-        check_result = check_interval(begin_time, end_time, checking_data)
-        if check_result is not None:
-            return render_template('add_edit_event.html', title='Добавить', form=form,
-                                   message="Для этого табло уже есть пересекающееся событие с интервалом " +
-                                           f"c {check_result.begin_time.strftime('%H:%M')} по " +
-                                           f"{check_result.end_time.strftime('%H:%M')} конец одного события пожет" +
-                                           "совпадать с началом другого")
-        route_data = db_sess.query(Routes).filter(Routes.route == form.route_number.raw_data[0]).first()
+        # здесь будем проверять пересечение с имеющимися событиями
+
+            # тестовые данные
+        route_data = {'n_route': {'route': 'DP-194'},
+                    'n_st_id': 1,
+                    'n_st': {'type': 1},
+                    'begin_time': '2021-09-01 22:23:00.000000',
+                    'end_time': '2021-05-09 23:23:00.000000',
+                    'up_time': '2021-05-09 23:43:00.000000'
+                    }
         now = datetime.datetime.now()
         begin_time = datetime.datetime(year=now.year, month=now.month, day=now.day,
                                        hour=int(form.begin_time.raw_data[0][:2]),
@@ -187,16 +161,8 @@ def add():
         up_time = datetime.datetime(year=now.year, month=now.month, day=now.day,
                                     hour=int(form.up_time.raw_data[0][:2]),
                                     minute=int(form.up_time.raw_data[0][3:]))
-        added_row = MainTable()
-        added_row.n_route_id = route_data.id
-        added_row.begin_time = begin_time
-        added_row.end_time = end_time
-        added_row.up_time = up_time
-        added_row.n_st_id = form.st_number.raw_data[0]
+        # здесь будем делать запись БД
 
-        # добавляем запись в бд
-        db_sess.add(added_row)
-        db_sess.commit()
         return redirect('/')
 
     return render_template('add_edit_event.html', title='Добавить', form=form)
@@ -205,15 +171,20 @@ def add():
 # функция возвращает список всех рейсов
 @app.route('/routes', methods=['GET', 'POST'])
 def routes():
-    db_sess = db_session.create_session()
-    data = db_sess.query(Routes).all()
-
     # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
     if 'route_id' in request.args.keys():
         id_row = request.args['route_id']
-        db_sess.query(Routes).filter(Routes.id == id_row).delete()
-        db_sess.commit()
-        data = db_sess.query(Routes).all()
+        # тестовые данные
+    data = [{'route': 'DP-194',
+                      'path_logo': 'pobeda_logo.png',
+                      'airport': 'Внуково'},
+                {'route': 'SU-1065',
+                 'path_logo': 'aeroflot.png',
+                 'airport': 'Шереметево'},
+                {'route': 'DP-6902',
+                 'path_logo': 'pobeda_logo.png',
+                 'airport': 'Шереметево'}
+                ]
 
     return render_template("routes.html", data=enumerate(data))
 
@@ -221,13 +192,14 @@ def routes():
 # функция реализует форму редактирования выбранного рейса
 @app.route('/edit_route', methods=['GET', 'POST'])
 def edit_route():
-    db_sess = db_session.create_session()
     form = AddEditRouteForm()
     id_row = 1
     # проверяем наличие параметра, содержащего id редактируемого события
     if 'route_id' in request.args.keys():
         id_row = request.args['route_id']
-    data = db_sess.query(Routes).filter(Routes.id == int(id_row)).first()
+    data = {'route': 'DP-194',
+                      'path_logo': 'pobeda_logo.png',
+                      'airport': 'Внуково'}
 
     logos = os.listdir('static/img')
     logos.remove('nal_logo.png')
@@ -240,27 +212,10 @@ def edit_route():
     form.airport.data = data.airport
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
-        # Проверяем название рейса на совпадение и имеющимися
-        checking_data = db_sess.query(Routes).filter(Routes.route == form.route.raw_data[0],
-                                                     Routes.id != id_row).all()
-        if len(checking_data) != 0:
-            return render_template('add_edit_route.html', title='Изменить', form=form,
-                                   message="Рейс с таким названием уже существует")
-        # Проверяем наличие файла с логотипом
-        if not os.access(f'static/img/{form.path_logo.raw_data[0]}', os.F_OK):
-            return render_template('add_edit_route.html', title='Изменить', form=form,
-                                   message="Файл с логотипом не найден")
-        edited_row = Routes()
-        edited_row.id = id_row
-        edited_row.route = form.route.raw_data[0]
-        edited_row.path_logo = form.path_logo.raw_data[0]
-        edited_row.airport = form.airport.raw_data[0]
+        # Здесь будем проверять название рейса на совпадение и имеющимися
 
-        # удаляем старую запись и делаем новую
-        db_sess.query(Routes).filter(Routes.id == id_row).delete()
-        db_sess.commit()
-        db_sess.add(edited_row)
-        db_sess.commit()
+        # здесь будем менять запись БД, удаляя старую и добавляя новую
+
         return redirect('/routes')
 
     return render_template('add_edit_route.html', title='Изменить', form=form)
@@ -269,7 +224,6 @@ def edit_route():
 # функция реализует форму добавления нового рейса
 @app.route("/add_route", methods=['GET', 'POST'])
 def add_route():
-    db_sess = db_session.create_session()
     form = AddEditRouteForm()
     logos = os.listdir('static/img')
     logos.remove('nal_logo.png')
@@ -280,23 +234,10 @@ def add_route():
     form.submit.label.text = 'Добавить'
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
-        # Проверяем название рейса на совпадение и имеющимися
-        checking_data = db_sess.query(Routes).filter(Routes.route == form.route.raw_data[0]).all()
-        if len(checking_data) != 0:
-            return render_template('add_edit_route.html', title='Изменить', form=form,
-                                   message="Рейс с таким названием уже существует")
-        # Проверяем наличие файла с логотипом
-        if not os.access(f'static/img/{form.path_logo.raw_data[0]}', os.F_OK):
-            return render_template('add_edit_route.html', title='Изменить', form=form,
-                                   message="Файл с логотипом не найден")
-        added_row = Routes()
-        added_row.route = form.route.raw_data[0]
-        added_row.path_logo = form.path_logo.raw_data[0]
-        added_row.airport = form.airport.raw_data[0]
+        # Здесь будем проверять название рейса на совпадение и имеющимися
 
-        # добавляем запись в бд
-        db_sess.add(added_row)
-        db_sess.commit()
+        # здесь будем менять запись БД, удаляя старую и добавляя новую
+
         return redirect('/routes')
 
     return render_template('add_edit_route.html', title='Добавить', form=form)
@@ -305,15 +246,20 @@ def add_route():
 # функция возвращает список всех табло
 @app.route('/sts', methods=['GET', 'POST'])
 def sts():
-    db_sess = db_session.create_session()
-    data = db_sess.query(Sts).all()
+    data = [{'id': '1',
+            'remote_ip': '172.16.2.3',
+            'type': 1},
+            {'id': '2',
+             'remote_ip': '172.16.2.4',
+             'type': 1},
+            {'id': '3',
+             'remote_ip': '127.0.0.1',
+             'type': 0}]
 
     # проверяем наличия ключа в параметрах http-запроса (нужно для удаления событий)
     if 'st_id' in request.args.keys():
-        id_row = request.args['st_id']
-        db_sess.query(Sts).filter(Sts.id == id_row).delete()
-        db_sess.commit()
-        data = db_sess.query(Sts).all()
+        # здесь будем удалять событие
+        pass
 
     return render_template("sts.html", data=enumerate(data))
 
@@ -321,13 +267,14 @@ def sts():
 # функция реализует форму редактирования выбранного табло
 @app.route('/edit_st', methods=['GET', 'POST'])
 def edit_st():
-    db_sess = db_session.create_session()
     form = AddEditStForm()
     id_row = 1
     # проверяем наличие параметра, содержащего id редактируемого события
     if 'st_id' in request.args.keys():
         id_row = request.args['st_id']
-    data = db_sess.query(Sts).filter(Sts.id == int(id_row)).first()
+    data = {'id': '1',
+            'remote_ip': '172.16.2.3',
+            'type': 1}
 
     # список типов табло
     sts_type = [(0, '0 посадка'), ('1', '1 регистрация')]
@@ -340,26 +287,14 @@ def edit_st():
     form.type.data = str(data.type)
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
-        # Проверяем ip табло на совпадение и имеющимися
-        checking_data = db_sess.query(Sts).filter(Sts.remote_ip == form.remote_ip.raw_data[0],
-                                                  Sts.id != id_row).all()
-        if len(checking_data) != 0:
-            return render_template('add_edit_st.html', title='Изменить', form=form,
-                                   message="Табло с таким ip-адресом уже существует")
-        # Проверка правильности формата ip-адреса
-        if not correct_ip(form.remote_ip.raw_data[0]):
-            return render_template('add_edit_st.html', title='Изменить', form=form,
-                                   message="ip-адрес указан некорректно")
-        edited_row = Sts()
-        edited_row.id = id_row
-        edited_row.remote_ip = form.remote_ip.raw_data[0]
-        edited_row.type = form.type.raw_data[0]
+        # Здесь будем проверять ip табло на совпадение и имеющимися
 
-        # удаляем старую запись и делаем новую
-        db_sess.query(Sts).filter(Sts.id == id_row).delete()
-        db_sess.commit()
-        db_sess.add(edited_row)
-        db_sess.commit()
+        # Проверка правильности формата ip-адреса
+
+        # Здесь будем проверять название рейса на совпадение и имеющимися
+
+        # здесь будем менять запись БД, удаляя старую и добавляя новую
+
         return redirect('/sts')
 
     return render_template('add_edit_st.html', title='Изменить', form=form)
@@ -368,29 +303,20 @@ def edit_st():
 # функция реализует форму добавления нового табло
 @app.route("/add_st", methods=['GET', 'POST'])
 def add_st():
-    db_sess = db_session.create_session()
     form = AddEditStForm()
     form.submit.label.text = 'Добавить'
     sts_type = [(0, '0 посадка'), ('1', '1 регистрация')]
     form.type.choices = sts_type
     # обрабатываем нажатие на кнопку
     if form.validate_on_submit():
-        # Проверяем ip табло на совпадение и имеющимися
-        checking_data = db_sess.query(Sts).filter(Sts.remote_ip == form.remote_ip.raw_data[0]).all()
-        if len(checking_data) != 0:
-            return render_template('add_edit_st.html', title='Изменить', form=form,
-                                   message="Табло с таким ip-адресом уже существует")
-        # Проверка правильности формата ip-адреса
-        if not correct_ip(form.remote_ip.raw_data[0]):
-            return render_template('add_edit_st.html', title='Изменить', form=form,
-                                   message="ip-адрес указан некорректно")
-        added_row = Sts()
-        added_row.remote_ip = form.remote_ip.raw_data[0]
-        added_row.type = form.type.raw_data[0]
+        # Здесь будем проверять ip табло на совпадение и имеющимися
 
-        # добавляем запись в бд
-        db_sess.add(added_row)
-        db_sess.commit()
+        # Проверка правильности формата ip-адреса
+
+        # Здесь будем проверять название рейса на совпадение и имеющимися
+
+        # здесь будем добавлять новую запись в БД
+
         return redirect('/sts')
 
     return render_template('add_edit_st.html', title='Добавить', form=form)
@@ -399,27 +325,32 @@ def add_st():
 # функция выбора файла логотипа
 @app.route("/logo_add", methods=['GET', 'POST'])
 def logo_choose():
-    if request.method == 'POST':
-        f = request.files['file']
-        f.save('static/img/' + f.filename)
-        return render_template('logo_add.html', title='Выбор логотипа', message='file uploaded successfully')
+    # здесь будем реализовано добавление логотипа
+
     return render_template('logo_add.html', title='Выбор логотипа')
 
 
 # функция возвращает страницу текущего события табло, запросившего ее
 @app.route("/st")
 def st():
-    db_sess = db_session.create_session()
     # узнаем ip-адрес клиента
     guest_ip = request.remote_addr
     state = 0
     data = []
     route_data = []
-    # получаем данные о нашей стойке
-    st_temp = db_sess.query(Sts).filter(Sts.remote_ip == guest_ip).first()
-    # получаем данные для нашей стойки, если табло зарегистрировано
+    # получаем данные о нашей стойке тестовые данные
+    st_temp = {'id': '3',
+             'remote_ip': '127.0.0.1',
+             'type': 0}
+    # получаем данные для нашей стойки, если табло зарегистрировано тестовые данные
     if st_temp is not None:
-        data = db_sess.query(MainTable).filter(MainTable.n_st_id == st_temp.id).all()
+        data = [{'n_route': {'route': 'DP-6902'},
+         'n_st_id': 3,
+         'n_st': {'type': 1},
+         'begin_time': '2021-09-01 22:00:00.000000',
+         'end_time': '2021-05-09 23:20:00.000000',
+         'up_time': '2021-05-09 23:30:00.000000'
+         }]
         state = 5
         if data is not None:
             for i in data:
@@ -427,7 +358,9 @@ def st():
                 end_time = i.end_time
                 n_route_id = i.n_route_id
                 # получаем данные о рейсе
-                route_data = db_sess.query(Routes).filter(Routes.id == n_route_id).first()
+                route_data = {'route': 'DP-6902',
+                 'path_logo': 'pobeda_logo.png',
+                 'airport': 'Шереметево'}
                 # определяем формат вывода на табло
                 # вариант 1 - есть информация для вывода прямо сейчас, регистрация
                 if begin_time <= datetime.datetime.now() <= end_time and st_temp.type == 1:
@@ -458,47 +391,11 @@ def st():
         return render_template("st.html", state=state)
 
 
-# api для получения информации по текущему рейсу
-@blueprint.route('/api/route_info/<string:route>', methods=['GET'])
-def get_route_events(route):
-    db_sess = db_session.create_session()
-    route_object = db_sess.query(Routes).filter(Routes.route == route).first()
-    result_events = db_sess.query(MainTable).filter(MainTable.n_route == route_object).all()
-    if not result_events:
-        return jsonify({'error': 'Not found'})
-    return jsonify(
-        {
-            'events':
-                [item.to_dict(only=('n_st_id', 'n_st.type', 'begin_time', 'end_time', 'up_time'))
-                 for item in result_events]
-        }
-    )
+# Здесь будет api для получения информации по текущему рейсу
 
-
-# api для добавления нового события
-@blueprint.route('/api/route_info', methods=['POST'])
-def add_route_events():
-    if not request.json:
-        return jsonify({'error': 'Empty request'})
-    elif not all(key in request.json for key in
-                 ['n_route_id', 'begin_time', 'end_time', 'up_time', 'n_st_id']):
-        return jsonify({'error': 'Bad request'})
-    db_sess = db_session.create_session()
-    adding_events = MainTable()
-    adding_events.n_route_id = request.json['n_route_id']
-    adding_events.begin_time = string_to_datetime(request.json['begin_time'])
-    adding_events.end_time = string_to_datetime(request.json['end_time'])
-    adding_events.up_time = string_to_datetime(request.json['up_time'])
-    adding_events.n_st_id = request.json['n_st_id']
-
-    db_sess.add(adding_events)
-    db_sess.commit()
-    return jsonify({'success': 'OK'})
-
+# Здесь будет api для добавления нового события
 
 def main():
-    db_session.global_init("db/database.db")
-    app.register_blueprint(route_info.blueprint)
     app.run()
 
 
